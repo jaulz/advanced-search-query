@@ -1,15 +1,16 @@
 {
-  "name": "search-string",
+  "name": "@approvals-cloud/advanced-search-query",
   "version": "4.0.0",
   "description": "Another parser for advanced search query syntax.",
-  "main": "index.ts",
+  "main": "build/cjs/src/index.js",
+  "module": "build/esm/src/index.js",
+  "types": "build/cjs/index.d.ts",
   "files": [
-    "index.ts",
-    "src"
+    "src",
+    "build"
   ],
-  "types": "",
   "scripts": {
-    "build": "ts-build ./src --cjs --esm",
+    "build": "ts-build . --cjs --esm --out-dir build",
     "ci": "npm run test && npm run build",
     "prepublish": "npm run ci",
     "test": "jest",
@@ -29,8 +30,11 @@
     "@ts-tools/build": "^0.1.16",
     "cz-conventional-changelog": "^3.0.2",
     "husky": "^3.0.3",
-    "jest": "^21.1.0",
-    "jest-cli": "^21.1.0",
+    "typescript": "^3.5.3",
+    "ts-jest": "^24.0.2",
+    "@types/jest": "^24.0.15",
+    "jest": "^24.8.0",
+    "jest-cli": "^24.8.0",
     "prettier": "^1.18.2",
     "pretty-quick": "^1.11.1"
   },

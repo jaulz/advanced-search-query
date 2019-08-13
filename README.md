@@ -12,7 +12,6 @@ to:me -from:joe@mixmax.com foobar1 -foobar2
 
 And returns an instance which can be mutated, return different data structures, or return the gmail-style search string again.
 
-
 ## Installation
 
 ```shell
@@ -22,67 +21,51 @@ $ yarn add @approvals-cloud/advanced-search-query
 ## Usage
 
 ```javascript
-const searchQuery = require('@approvals-cloud/advanced-search-query');
+const AdvancedSearchQuery = require('@approvals-cloud/advanced-search-query')
 
 // Perform parsing
-const str = 'to:me -from:joe@mixmax.com foobar1 -foobar2';
-const parsedSearchQuery = searchQuery.parse(str);
+const str = 'to:me -from:joe@mixmax.com foobar1 -foobar2'
+const parsedSearchQuery = AdvancedSearchQuery.parse(str)
 
 /* Get text in different formats. */
 
 // [ { text: 'foorbar1', negated: false }, { text: 'foobar2', negated: true } ]
-parsedSearchQuery.getTextSegments();
+parsedSearchQuery.getTextSegments()
 
 // `foobar1 -foobar2`
-parsedSearchQuery.getAllText();
-
+parsedSearchQuery.getAllText()
 
 /* Get conditions in different formats. */
 
 // Standard format: Condition Array
 // [ { keyword: 'to', value: 'me', negated: false }, { keyword: 'from', value: 'joe@mixmax.com', negated: true } ]
-parsedSearchQuery.getConditionArray(); 
+parsedSearchQuery.getConditionArray()
 
 // Alternate format: Parsed Query
 // { to: ['me'], excludes: { from: ['joe@mixmax.com'] }}
-parsedSearchQuery.getParsedQuery(); 
+parsedSearchQuery.getParsedQuery()
 
 /* Or get text and conditions back in string format. */
 
 // `to:me -from:joe@mixmax.com foobar1 -foobar2`
-parsedSearchQuery.toString();
+parsedSearchQuery.toString()
 
-
-/* Mutations exist as well for modifying an existing SearchString structure. */
+/* Mutations exist as well for modifying an existing AdvancedSearchQuery structure. */
 
 // `to:me foobar -foobar2`
 parsedSearchQuery.removeKeyword('from', true).toString()
 
 // `to:me from:jane@mixmax.com foobar1 -foobar2`
-parsedSearchQuery.addEntry('from', 'jane@mixmax.com', false).toString();
+parsedSearchQuery.addEntry('from', 'jane@mixmax.com', false).toString()
 
 // `from:jane@mixmax.com foobar1 -foobar2`
-parsedSearchQuery.removeEntry('to', 'me', false).toString();
+parsedSearchQuery.removeEntry('to', 'me', false).toString()
 
 /* clone operation instantiates a new version by copying over data. */
 
 // `from:jane@mixmax.com foobar1 -foobar2`
-parsedSearchQuery.clone().toString();
-
-
+parsedSearchQuery.clone().toString()
 ```
-
-## Testing
-
-Run tests with `npm test`
-
-or run tests on any changes with `npm run testWatch`
-
-## Building
-
-Build ES5 compatible code with `npm run babel`
-
-or continually build and watch for changes with `npm run babelWatch`
 
 ## License
 
