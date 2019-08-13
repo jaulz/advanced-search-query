@@ -11,8 +11,9 @@
   ],
   "scripts": {
     "build": "ts-build . --cjs --esm --out-dir build",
-    "ci": "npm run test && npm run build",
-    "prepublishOnly": "npm run ci",
+    "ci": "yarn test && yarn build",
+    "prepare": "yarn build",
+    "prepublishOnly": "yarn ci",
     "test": "jest",
     "testWatch": "jest --watch",
     "semantic-release": "semantic-release"
