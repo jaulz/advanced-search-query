@@ -4,7 +4,7 @@
   "description": "Another parser for advanced search query syntax.",
   "main": "build/cjs/src/index.js",
   "module": "build/esm/src/index.js",
-  "types": "build/cjs/index.d.ts",
+  "types": "build/cjs/src/index.d.ts",
   "files": [
     "src",
     "build"
