@@ -1,24 +1,21 @@
 {
   "name": "search-string",
-  "version": "3.1.0",
+  "version": "4.0.0",
   "description": "Another parser for advanced search query syntax.",
-  "main": "index.js",
+  "main": "index.ts",
   "files": [
-    "index.js",
-    "src",
-    "dist"
+    "index.ts",
+    "src"
   ],
+  "types": "",
   "scripts": {
-    "babelBuild": "babel src/ -d dist/node/ --copy-files",
-    "babelWatch": "babel --watch src/ -d dist/node/ --copy-files",
-    "build": "rm -rf dist/node && npm run babelBuild",
-    "ci": "npm run lint && npm run test && npm run build",
-    "lint": "eslint .",
+    "build": "ts-build ./src --cjs --esm",
+    "ci": "npm run test && npm run build",
     "prepublish": "npm run ci",
     "test": "jest",
     "testWatch": "jest --watch"
   },
-  "author": "Marcus Ericsson <marcus@mixmax.com> (https://mixmax.com)",
+  "author": "Julian Hundeloh <julian@approvals.cloud> (https://approvals.cloud)",
   "license": "MIT",
   "keywords": [
     "query parser",
@@ -27,15 +24,31 @@
     "search syntax parser",
     "search query"
   ],
-  "repository": "git@github.com:mixmaxhq/search-string.git",
-  "dependencies": {},
+  "repository": "git@github.com:jaulz/advanced-search-query.git",
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.0",
-    "babel-preset-es2015": "^6.24.1",
-    "eslint": "^4.7.2",
-    "eslint-config-mixmax": "^0.11.0",
+    "@ts-tools/build": "^0.1.16",
+    "cz-conventional-changelog": "^3.0.2",
+    "husky": "^3.0.3",
     "jest": "^21.1.0",
-    "jest-cli": "^21.1.0"
+    "jest-cli": "^21.1.0",
+    "prettier": "^1.18.2",
+    "pretty-quick": "^1.11.1"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "es5",
+    "semi": false
+  },
+  "husky": {
+    "hooks": {
+      "post-merge": "yarn install",
+      "post-rewrite": "yarn install",
+      "pre-commit": "pretty-quick --staged --verbose"
+    }
   }
 }
