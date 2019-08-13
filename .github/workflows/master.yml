@@ -17,7 +17,7 @@ jobs:
       - name: yarn ci
         run: yarn ci
       - name: semantic release
-        uses: docker://timbru31/node-alpine-git
+        uses: docker://ellerbrock/alpine-bash-git
         with:
           args: npx semantic-release
         env:
