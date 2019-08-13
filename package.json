@@ -1,6 +1,6 @@
 {
   "name": "@approvals-cloud/advanced-search-query",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Another parser for advanced search query syntax.",
   "main": "build/cjs/src/index.js",
   "module": "build/esm/src/index.js",
