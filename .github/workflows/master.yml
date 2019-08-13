@@ -17,9 +17,7 @@ jobs:
       - name: yarn ci
         run: yarn ci
       - name: semantic release
-        uses: docker://ellerbrock/alpine-bash-git
-        with:
-          args: npx semantic-release
+        run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
