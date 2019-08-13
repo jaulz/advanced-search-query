@@ -1,8 +1,8 @@
-# Search String
+# Advanced Search Query
 
 > Another simple parser for advanced search query syntax.
 
-[![Build Status](https://travis-ci.org/mixmaxhq/search-string.svg?branch=master)](https://travis-ci.org/mixmaxhq/search-string) [![npm version](https://badge.fury.io/js/search-string.svg)](https://badge.fury.io/js/search-string)
+[![npm version](https://badge.fury.io/js/search-string.svg)](https://badge.fury.io/js/search-string)
 
 It parses typical Gmail-style search strings like:
 
@@ -10,66 +10,64 @@ It parses typical Gmail-style search strings like:
 to:me -from:joe@mixmax.com foobar1 -foobar2
 ```
 
-And returns an instance of `SearchString` which can be mutated, return different data structures, or return the gmail-style search string again.
-
-See this [blog post](https://mixmax.com/blog/search-string-advanced-search-parser) introducing this library.
+And returns an instance which can be mutated, return different data structures, or return the gmail-style search string again.
 
 
 ## Installation
 
 ```shell
-$ npm install search-string
+$ yarn add @approvals-cloud/advanced-search-query
 ```
 
 ## Usage
 
 ```javascript
-const SearchString = require('search-string');
+const searchQuery = require('@approvals-cloud/advanced-search-query');
 
 // Perform parsing
 const str = 'to:me -from:joe@mixmax.com foobar1 -foobar2';
-const searchString = SearchString.parse(str);
+const parsedSearchQuery = searchQuery.parse(str);
 
 /* Get text in different formats. */
 
 // [ { text: 'foorbar1', negated: false }, { text: 'foobar2', negated: true } ]
-searchString.getTextSegments();
+parsedSearchQuery.getTextSegments();
 
 // `foobar1 -foobar2`
-searchString.getAllText();
+parsedSearchQuery.getAllText();
 
 
 /* Get conditions in different formats. */
 
 // Standard format: Condition Array
 // [ { keyword: 'to', value: 'me', negated: false }, { keyword: 'from', value: 'joe@mixmax.com', negated: true } ]
-searchString.getConditionArray(); 
+parsedSearchQuery.getConditionArray(); 
 
 // Alternate format: Parsed Query
 // { to: ['me'], excludes: { from: ['joe@mixmax.com'] }}
-searchString.getParsedQuery(); 
+parsedSearchQuery.getParsedQuery(); 
 
 /* Or get text and conditions back in string format. */
 
 // `to:me -from:joe@mixmax.com foobar1 -foobar2`
-searchString.toString();
+parsedSearchQuery.toString();
 
 
 /* Mutations exist as well for modifying an existing SearchString structure. */
 
 // `to:me foobar -foobar2`
-searchString.removeKeyword('from', true).toString()
+parsedSearchQuery.removeKeyword('from', true).toString()
 
 // `to:me from:jane@mixmax.com foobar1 -foobar2`
-searchString.addEntry('from', 'jane@mixmax.com', false).toString();
+parsedSearchQuery.addEntry('from', 'jane@mixmax.com', false).toString();
 
 // `from:jane@mixmax.com foobar1 -foobar2`
-searchString.removeEntry('to', 'me', false).toString();
+parsedSearchQuery.removeEntry('to', 'me', false).toString();
 
 /* clone operation instantiates a new version by copying over data. */
 
 // `from:jane@mixmax.com foobar1 -foobar2`
-searchString.clone().toString();
+parsedSearchQuery.clone().toString();
 
 
 ```
@@ -86,32 +84,14 @@ Build ES5 compatible code with `npm run babel`
 
 or continually build and watch for changes with `npm run babelWatch`
 
-## Background
-
-See [this blogpost](https://mixmax.com/blog/search-string-advanced-search-parser) for why this library was built and continues to be supported.
-
-Thanks to [search-query-parser](https://github.com/nepsilon/search-query-parser) for inspiration.
-
 ## License
 
 The MIT License (MIT)
 
-Copyright (c) 2017 Mixmax <marcus@mixmax.com>
+Copyright 2019 Julian Hundeloh <julian@approvals.cloud>
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
