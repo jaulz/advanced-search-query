@@ -52,7 +52,7 @@
     "hooks": {
       "post-merge": "yarn install",
       "post-rewrite": "yarn install",
-      "pre-commit": "pretty-quick --staged --verbose"
+      "pre-commit": "yarn test && pretty-quick --staged --verbose"
     }
   }
 }
