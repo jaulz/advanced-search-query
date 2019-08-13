@@ -16,9 +16,15 @@ jobs:
         run: yarn install
       - name: yarn ci
         run: yarn ci
-      - name: publish
-        uses: actions/npm@master
-        with:
-          args: "publish --access public"
+      - name: semantic release
+        uses: docker://timbru31/node-alpine-git
+        run: npx semantic-release
         env:
-          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+#      - name: publish
+#        uses: actions/npm@master
+#        with:
+#          args: "publish --access public"
+#        env:
+#          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
