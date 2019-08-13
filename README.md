@@ -1,6 +1,7 @@
 # Advanced Search Query
 
 > Another simple parser for advanced search query syntax.
+
 > This version is a fork of https://github.com/mixmaxhq/search-string but it is actively maintained and uses TypeScript.
 
 [![npm version](https://badge.fury.io/js/%40approvals-cloud%2Fadvanced-search-query.svg)](https://badge.fury.io/js/%40approvals-cloud%2Fadvanced-search-query)
