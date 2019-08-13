@@ -1,17 +1,18 @@
-name: CI
+name: dev
 
-on: 
+on:
   push:
     branches:
-    - dev
+      - dev
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@master
-    - name: yarn install & yarn ci
-      run: |
-        yarn
-        yarn ci
+      - name: checkout
+        uses: actions/checkout@master
+      - name: yarn install
+        run: yarn install
+      - name: yarn ci
+        run: yarn ci
