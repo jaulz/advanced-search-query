@@ -38,15 +38,14 @@ export default class AdvancedSearchQuery {
   }
 
   /**
-   * @param {String} str to parse e.g. 'to:me -from:joe@acme.com foobar'.
+   * @param {String} string to parse e.g. 'to:me -from:joe@acme.com foobar'.
    * @param {Array} transformTextToConditions Array of functions to transform text into conditions
    * @returns {AdvancedSearchQuery} An instance of this class AdvancedSearchQuery.
    */
   static parse(
-    str?: string | null,
+    string: string = '',
     transformTextToConditions: Transformer[] = []
   ) {
-    if (!str) str = ''
     const conditionArray: Condition[] = []
     const textSegments: TextSegment[] = []
 
@@ -102,10 +101,10 @@ export default class AdvancedSearchQuery {
 
     performReset()
 
-    const quotePairMap = getQuotePairMap(str)
+    const quotePairMap = getQuotePairMap(string)
 
-    for (let i = 0; i < str.length; i++) {
-      const char = str[i]
+    for (let i = 0; i < string.length; i++) {
+      const char = string[i]
       if (char === ' ') {
         if (inOperand()) {
           if (inQuote()) {
