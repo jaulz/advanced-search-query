@@ -28,8 +28,8 @@ describe('searchString', () => {
     expect(AdvancedSearchQuery.parse().getConditionArray()).toEqual([])
     expect(AdvancedSearchQuery.parse('').getConditionArray()).toEqual([])
     expect(AdvancedSearchQuery.parse('   ').getConditionArray()).toEqual([])
-    expect(AdvancedSearchQuery.parse(null).getConditionArray()).toEqual([])
-    expect(AdvancedSearchQuery.parse(null).getParsedQuery()).toEqual({
+    expect(AdvancedSearchQuery.parse('').getConditionArray()).toEqual([])
+    expect(AdvancedSearchQuery.parse('').getParsedQuery()).toEqual({
       exclude: {},
     })
   })
