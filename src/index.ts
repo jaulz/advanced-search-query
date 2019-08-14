@@ -1,6 +1,11 @@
 import { getQuotePairMap } from './utils'
 
-// types
+const RESET = 'RESET'
+const IN_OPERAND = 'IN_OPERAND'
+const IN_TEXT = 'IN_TEXT'
+const SINGLE_QUOTE = 'SINGLE_QUOTE'
+const DOUBLE_QUOTE = 'DOUBLE_QUOTE'
+
 type State = typeof RESET | typeof IN_OPERAND | typeof IN_TEXT
 type QuoteState = typeof RESET | typeof SINGLE_QUOTE | typeof DOUBLE_QUOTE
 type Keyword = Exclude<string, 'exclude'>
@@ -11,13 +16,6 @@ type Transformer = (text: string) => { key: Keyword; value: string } | null
 type ParsedQuery = Record<string, any> & {
   exclude: Record<string, Value[]>
 }
-
-// state tokens
-const RESET = 'RESET'
-const IN_OPERAND = 'IN_OPERAND'
-const IN_TEXT = 'IN_TEXT'
-const SINGLE_QUOTE = 'SINGLE_QUOTE'
-const DOUBLE_QUOTE = 'DOUBLE_QUOTE'
 
 /**
  * AdvancedSearchQuery is a parsed search string which allows you to fetch conditions
