@@ -2,9 +2,7 @@
 
 > Another simple parser for advanced search query syntax.
 
-> This version is a fork of https://github.com/mixmaxhq/search-string but it is actively maintained and uses TypeScript.
-
-[![npm version](https://badge.fury.io/js/%40approvals-cloud%2Fadvanced-search-query.svg)](https://badge.fury.io/js/%40approvals-cloud%2Fadvanced-search-query)
+[![npm version](https://badge.fury.io/js/advanced-search-query.svg)](https://badge.fury.io/js/advanced-search-query)
 
 It parses typical Gmail-style search strings like:
 
@@ -17,13 +15,13 @@ And returns an instance which can be mutated, return different data structures, 
 ## Installation
 
 ```shell
-$ yarn add @approvals-cloud/advanced-search-query
+$ yarn add advanced-search-query
 ```
 
 ## Usage
 
 ```javascript
-const AdvancedSearchQuery = require('@approvals-cloud/advanced-search-query')
+import AdvancedSearchQuery from 'advanced-search-query'
 
 // Perform parsing
 const str = 'to:me -from:joe@mixmax.com foobar1 -foobar2'

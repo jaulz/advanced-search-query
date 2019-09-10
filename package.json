@@ -1,5 +1,5 @@
 {
-  "name": "@approvals-cloud/advanced-search-query",
+  "name": "advanced-search-query",
   "version": "0.0.0-development",
   "description": "Another parser for advanced search query syntax.",
   "main": "build/cjs/src/index.js",
