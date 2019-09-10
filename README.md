@@ -2,7 +2,9 @@
 
 > Another simple parser for advanced search query syntax.
 
-[![npm version](https://badge.fury.io/js/search-string.svg)](https://badge.fury.io/js/search-string)
+> This version is a fork of https://github.com/mixmaxhq/search-string but it is actively maintained and uses TypeScript.
+
+[![npm version](https://badge.fury.io/js/%40approvals-cloud%2Fadvanced-search-query.svg)](https://badge.fury.io/js/%40approvals-cloud%2Fadvanced-search-query)
 
 It parses typical Gmail-style search strings like:
 
