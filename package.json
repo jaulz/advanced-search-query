@@ -4,17 +4,19 @@
   "description": "Another parser for advanced search query syntax.",
   "main": "build/cjs/src/index.js",
   "module": "build/esm/src/index.js",
-  "types": "build/cjs/index.d.ts",
+  "types": "build/cjs/src/index.d.ts",
   "files": [
     "src",
     "build"
   ],
   "scripts": {
     "build": "ts-build . --cjs --esm --out-dir build",
-    "ci": "npm run test && npm run build",
-    "prepublish": "npm run ci",
+    "ci": "yarn test && yarn build",
+    "prepare": "yarn build",
+    "prepublishOnly": "yarn ci",
     "test": "jest",
-    "testWatch": "jest --watch"
+    "testWatch": "jest --watch",
+    "semantic-release": "semantic-release"
   },
   "author": "Julian Hundeloh <julian@approvals.cloud> (https://approvals.cloud)",
   "license": "MIT",
@@ -36,7 +38,8 @@
     "jest": "^24.8.0",
     "jest-cli": "^24.8.0",
     "prettier": "^1.18.2",
-    "pretty-quick": "^1.11.1"
+    "pretty-quick": "^1.11.1",
+    "semantic-release": "^15.13.19"
   },
   "config": {
     "commitizen": {
