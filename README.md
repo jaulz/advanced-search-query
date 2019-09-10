@@ -15,13 +15,13 @@ And returns an instance which can be mutated, return different data structures, 
 ## Installation
 
 ```shell
-$ yarn add @approvals-cloud/advanced-search-query
+$ yarn add advanced-search-query
 ```
 
 ## Usage
 
 ```javascript
-const AdvancedSearchQuery = require('@approvals-cloud/advanced-search-query')
+const AdvancedSearchQuery = require('advanced-search-query')
 
 // Perform parsing
 const str = 'to:me -from:joe@mixmax.com foobar1 -foobar2'
