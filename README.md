@@ -2,7 +2,7 @@
 
 > Another simple parser for advanced search query syntax.
 
-[![npm version](https://badge.fury.io/js/search-string.svg)](https://badge.fury.io/js/search-string)
+[![npm version](https://badge.fury.io/js/advanced-search-query.svg)](https://badge.fury.io/js/advanced-search-query)
 
 It parses typical Gmail-style search strings like:
 
@@ -21,7 +21,7 @@ $ yarn add advanced-search-query
 ## Usage
 
 ```javascript
-const AdvancedSearchQuery = require('advanced-search-query')
+import AdvancedSearchQuery from 'advanced-search-query'
 
 // Perform parsing
 const str = 'to:me -from:joe@mixmax.com foobar1 -foobar2'
