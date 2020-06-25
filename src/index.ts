@@ -38,145 +38,6 @@ export default class AdvancedSearchQuery {
   }
 
   /**
-   * @param {String} string to parse e.g. 'to:me -from:joe@acme.com foobar'.
-   * @param {Array} transformTextToConditions Array of functions to transform text into conditions
-   * @returns {AdvancedSearchQuery} An instance of this class AdvancedSearchQuery.
-   */
-  static parse(
-    string: string = '',
-    transformTextToConditions: Transformer[] = []
-  ) {
-    const conditionArray: Condition[] = []
-    const textSegments: TextSegment[] = []
-
-    const addCondition = (key: Keyword, value: Value, negated: boolean) => {
-      const arrayEntry = { keyword: key, value, negated }
-      conditionArray.push(arrayEntry)
-    }
-
-    const addTextSegment = (text: string, negated: boolean) => {
-      let hasTransform = false
-      transformTextToConditions.forEach(transform => {
-        const transformed = transform(text)
-        if (transformed) {
-          const { key, value } = transformed
-          if (key && value) {
-            addCondition(key, value, negated)
-            hasTransform = true
-          }
-        }
-      })
-      if (!hasTransform) {
-        textSegments.push({ text, negated })
-      }
-    }
-
-    let state: State = RESET
-    let currentOperand = ''
-    let isNegated = false
-    let currentText = ''
-    let quoteState: QuoteState
-    let prevChar = ''
-
-    const performReset = () => {
-      state = RESET
-      quoteState = RESET
-      currentOperand = ''
-      currentText = ''
-      isNegated = false
-      prevChar = ''
-    }
-
-    // Terminology, in this example: 'to:joe@acme.com'
-    // 'to' is the operator
-    // 'joe@acme.com' is the operand
-    // 'to:joe@acme.com' is the condition
-
-    // Possible states:
-    const inText = () => state === IN_TEXT // could be inside raw text or operator
-    const inOperand = () => state === IN_OPERAND
-    const inSingleQuote = () => quoteState === SINGLE_QUOTE
-    const inDoubleQuote = () => quoteState === DOUBLE_QUOTE
-    const inQuote = () => inSingleQuote() || inDoubleQuote()
-
-    performReset()
-
-    const quotePairMap = getQuotePairMap(string)
-
-    for (let i = 0; i < string.length; i++) {
-      const char = string[i]
-      if (char === ' ') {
-        if (inOperand()) {
-          if (inQuote()) {
-            currentOperand += char
-          } else {
-            addCondition(currentText, currentOperand, isNegated)
-            performReset()
-          }
-        } else if (inText()) {
-          if (inQuote()) {
-            currentText += char
-          } else {
-            addTextSegment(currentText, isNegated)
-            performReset()
-          }
-        }
-      } else if (char === ',' && inOperand() && !inQuote()) {
-        addCondition(currentText, currentOperand, isNegated)
-        // No reset here because we are still evaluating operands for the same operator
-        currentOperand = ''
-      } else if (char === '-' && !inOperand() && !inText()) {
-        isNegated = true
-      } else if (char === ':' && !inQuote()) {
-        if (inOperand()) {
-          // If we're in an operand, just push the string on.
-          currentOperand += char
-        } else if (inText()) {
-          // Skip this char, move states into IN_OPERAND,
-          state = IN_OPERAND
-        }
-      } else if (char === '"' && prevChar !== '\\' && !inSingleQuote()) {
-        if (inDoubleQuote()) {
-          quoteState = RESET
-        } else if (quotePairMap.double[i]) {
-          quoteState = DOUBLE_QUOTE
-        } else if (inOperand()) {
-          currentOperand += char
-        } else {
-          currentText += char
-        }
-      } else if (char === "'" && prevChar !== '\\' && !inDoubleQuote()) {
-        if (inSingleQuote()) {
-          quoteState = RESET
-        } else if (quotePairMap.single[i]) {
-          quoteState = SINGLE_QUOTE
-        } else if (inOperand()) {
-          currentOperand += char
-        } else {
-          currentText += char
-        }
-      } else if (char !== '\\') {
-        // Regular character..
-        if (inOperand()) {
-          currentOperand += char
-        } else {
-          currentText += char
-          state = IN_TEXT
-        }
-      }
-      prevChar = char
-    }
-    // End of string, add any last entries
-    if (inText()) {
-      addTextSegment(currentText, isNegated)
-    } else if (inOperand()) {
-      addCondition(currentText, currentOperand, isNegated)
-    }
-
-    return new AdvancedSearchQuery(conditionArray, textSegments)
-  }
-
-  /**
    * @return {Array} conditions, may contain multiple conditions for a particular key.
    */
   getConditionArray() {
@@ -340,3 +201,139 @@ export default class AdvancedSearchQuery {
     return this.string
   }
 }
+
+/**
+ * @param {String} string to parse e.g. 'to:me -from:joe@acme.com foobar'.
+ * @param {Array} transformTextToConditions Array of functions to transform text into conditions
+ * @returns {AdvancedSearchQuery} An instance of this class AdvancedSearchQuery.
+ */
+export default function(input: string = '', transformTextToConditions: Transformer[] = []) {
+    const conditionArray: Condition[] = []
+    const textSegments: TextSegment[] = []
+
+    const addCondition = (key: Keyword, value: Value, negated: boolean) => {
+      const arrayEntry = { keyword: key, value, negated }
+      conditionArray.push(arrayEntry)
+    }
+
+    const addTextSegment = (text: string, negated: boolean) => {
+      let hasTransform = false
+      transformTextToConditions.forEach(transform => {
+        const transformed = transform(text)
+        if (transformed) {
+          const { key, value } = transformed
+          if (key && value) {
+            addCondition(key, value, negated)
+            hasTransform = true
+          }
+        }
+      })
+      if (!hasTransform) {
+        textSegments.push({ text, negated })
+      }
+    }
+
+    let state: State = RESET
+    let currentOperand = ''
+    let isNegated = false
+    let currentText = ''
+    let quoteState: QuoteState
+    let prevChar = ''
+
+    const performReset = () => {
+      state = RESET
+      quoteState = RESET
+      currentOperand = ''
+      currentText = ''
+      isNegated = false
+      prevChar = ''
+    }
+
+    // Terminology, in this example: 'to:joe@acme.com'
+    // 'to' is the operator
+    // 'joe@acme.com' is the operand
+    // 'to:joe@acme.com' is the condition
+
+    // Possible states:
+    const inText = () => state === IN_TEXT // could be inside raw text or operator
+    const inOperand = () => state === IN_OPERAND
+    const inSingleQuote = () => quoteState === SINGLE_QUOTE
+    const inDoubleQuote = () => quoteState === DOUBLE_QUOTE
+    const inQuote = () => inSingleQuote() || inDoubleQuote()
+
+    performReset()
+
+    const quotePairMap = getQuotePairMap(string)
+
+    for (let i = 0; i < input.length; i++) {
+      const char = input[i]
+      if (char === ' ') {
+        if (inOperand()) {
+          if (inQuote()) {
+            currentOperand += char
+          } else {
+            addCondition(currentText, currentOperand, isNegated)
+            performReset()
+          }
+        } else if (inText()) {
+          if (inQuote()) {
+            currentText += char
+          } else {
+            addTextSegment(currentText, isNegated)
+            performReset()
+          }
+        }
+      } else if (char === ',' && inOperand() && !inQuote()) {
+        addCondition(currentText, currentOperand, isNegated)
+        // No reset here because we are still evaluating operands for the same operator
+        currentOperand = ''
+      } else if (char === '-' && !inOperand() && !inText()) {
+        isNegated = true
+      } else if (char === ':' && !inQuote()) {
+        if (inOperand()) {
+          // If we're in an operand, just push the string on.
+          currentOperand += char
+        } else if (inText()) {
+          // Skip this char, move states into IN_OPERAND,
+          state = IN_OPERAND
+        }
+      } else if (char === '"' && prevChar !== '\\' && !inSingleQuote()) {
+        if (inDoubleQuote()) {
+          quoteState = RESET
+        } else if (quotePairMap.double[i]) {
+          quoteState = DOUBLE_QUOTE
+        } else if (inOperand()) {
+          currentOperand += char
+        } else {
+          currentText += char
+        }
+      } else if (char === "'" && prevChar !== '\\' && !inDoubleQuote()) {
+        if (inSingleQuote()) {
+          quoteState = RESET
+        } else if (quotePairMap.single[i]) {
+          quoteState = SINGLE_QUOTE
+        } else if (inOperand()) {
+          currentOperand += char
+        } else {
+          currentText += char
+        }
+      } else if (char !== '\\') {
+        // Regular character..
+        if (inOperand()) {
+          currentOperand += char
+        } else {
+          currentText += char
+          state = IN_TEXT
+        }
+      }
+      prevChar = char
+    }
+    // End of string, add any last entries
+    if (inText()) {
+      addTextSegment(currentText, isNegated)
+    } else if (inOperand()) {
+      addCondition(currentText, currentOperand, isNegated)
+    }
+
+    return new AdvancedSearchQuery(conditionArray, textSegments)
+  }
