@@ -1,187 +1,170 @@
-import AdvancedSearchQuery from '../src/index'
+import parseAdvancedSearchQuery, { AdvancedSearchQuery } from '../src/index'
 
-function getConditionMap(searchString: AdvancedSearchQuery) {
-  const map: Record<
-    string,
-    {
-      value: string
-      negated: boolean
-    }[]
-  > = {}
-  searchString.getConditionArray().forEach(({ keyword, value, negated }) => {
-    const mapValue = { value, negated }
-    if (map[keyword]) {
-      map[keyword].push(mapValue)
-    } else {
-      map[keyword] = [mapValue]
-    }
-  })
-  return map
-}
-
-function getNumKeywords(searchString: AdvancedSearchQuery) {
-  return Object.keys(getConditionMap(searchString)).length
+const getNumberOfKeywords = (
+  parsedAdvancedSearchQuery: AdvancedSearchQuery
+) => {
+  return Object.keys(parsedAdvancedSearchQuery.getKeywords()).length
 }
 
 describe('searchString', () => {
   test('empty', () => {
-    expect(AdvancedSearchQuery.parse().getConditionArray()).toEqual([])
-    expect(AdvancedSearchQuery.parse('').getConditionArray()).toEqual([])
-    expect(AdvancedSearchQuery.parse('   ').getConditionArray()).toEqual([])
-    expect(AdvancedSearchQuery.parse('').getConditionArray()).toEqual([])
-    expect(AdvancedSearchQuery.parse('').getParsedQuery()).toEqual({
-      exclude: {},
+    expect(parseAdvancedSearchQuery().getKeywords()).toEqual({})
+    expect(parseAdvancedSearchQuery('').getKeywords()).toEqual({})
+    expect(parseAdvancedSearchQuery('   ').getKeywords()).toEqual({})
+    expect(parseAdvancedSearchQuery('').getKeywords()).toEqual({})
+    expect(parseAdvancedSearchQuery('').toObject()).toEqual({
+      text: {
+        include: [],
+        exclude: [],
+      },
+      keywords: {},
     })
   })
 
   test('bad input', () => {
-    expect(AdvancedSearchQuery.parse('to:').getConditionArray()).toEqual([
-      { keyword: 'to', value: '', negated: false },
-    ])
-    expect(
-      AdvancedSearchQuery.parse('quoted text"').getTextSegments()[0]
-    ).toEqual({
-      text: 'quoted',
-      negated: false,
+    expect(parseAdvancedSearchQuery('to:').getKeywords()).toEqual({
+      to: [{ value: '', isNegated: false }],
     })
-    expect(
-      AdvancedSearchQuery.parse('quoted text"').getTextSegments()[1]
-    ).toEqual({
-      text: 'text"',
-      negated: false,
+    expect(parseAdvancedSearchQuery('quoted text"').getTexts()[0]).toEqual({
+      value: 'quoted',
+      isNegated: false,
+    })
+    expect(parseAdvancedSearchQuery('quoted text"').getTexts()[1]).toEqual({
+      value: 'text"',
+      isNegated: false,
     })
   })
 
   test('basic', () => {
-    const str = 'to:me -from:joe@acme.com foobar'
-    const parsed = AdvancedSearchQuery.parse(str)
-    expect(parsed.getTextSegments()).toEqual([
-      { text: 'foobar', negated: false },
-    ])
-    expect(getNumKeywords(parsed)).toEqual(2)
-    expect(getConditionMap(parsed).to).toEqual([
+    const input = 'to:me -from:joe@acme.com foobar'
+    const parsed = parseAdvancedSearchQuery(input)
+
+    expect(parsed.getTexts()).toEqual([{ value: 'foobar', isNegated: false }])
+    expect(getNumberOfKeywords(parsed)).toEqual(2)
+    expect(parsed.getKeyword('to')).toEqual([
       {
         value: 'me',
-        negated: false,
+        isNegated: false,
       },
     ])
-    expect(getConditionMap(parsed).from).toEqual([
+    expect(parsed.getKeyword('from')).toEqual([
       {
         value: 'joe@acme.com',
-        negated: true,
+        isNegated: true,
       },
     ])
   })
 
   test('multiple getText() segments', () => {
-    const str = 'to:me foobar zoobar'
-    const parsed = AdvancedSearchQuery.parse(str)
-    expect(parsed.getTextSegments()).toEqual([
-      { text: 'foobar', negated: false },
-      { text: 'zoobar', negated: false },
+    const input = 'to:me foobar zoobar'
+    const parsed = parseAdvancedSearchQuery(input)
+
+    expect(parsed.getTexts()).toEqual([
+      { value: 'foobar', isNegated: false },
+      { value: 'zoobar', isNegated: false },
     ])
-    expect(getNumKeywords(parsed)).toEqual(1)
-    expect(getConditionMap(parsed).to).toEqual([
+    expect(getNumberOfKeywords(parsed)).toEqual(1)
+    expect(parsed.getKeyword('to')).toEqual([
       {
         value: 'me',
-        negated: false,
+        isNegated: false,
       },
     ])
   })
 
   test('quoted value with space', () => {
-    const str = 'to:"Marcus Ericsson" foobar'
-    const parsed = AdvancedSearchQuery.parse(str)
-    expect(parsed.getTextSegments()).toEqual([
-      { text: 'foobar', negated: false },
-    ])
-    expect(getNumKeywords(parsed)).toEqual(1)
-    expect(getConditionMap(parsed).to).toEqual([
+    const input = 'to:"Marcus Ericsson" foobar'
+    const parsed = parseAdvancedSearchQuery(input)
+
+    expect(parsed.getTexts()).toEqual([{ value: 'foobar', isNegated: false }])
+    expect(getNumberOfKeywords(parsed)).toEqual(1)
+    expect(parsed.getKeyword('to')).toEqual([
       {
         value: 'Marcus Ericsson',
-        negated: false,
+        isNegated: false,
       },
     ])
   })
 
   test('date example', () => {
-    const str =
+    const input =
       'from:hi@mericsson.com,foo@gmail.com to:me subject:vacations date:1/10/2013-15/04/2014 photos'
-    const parsed = AdvancedSearchQuery.parse(str)
-    const conditionMap = getConditionMap(parsed)
-    expect(getNumKeywords(parsed)).toEqual(4)
-    expect(conditionMap.from).toEqual([
-      { value: 'hi@mericsson.com', negated: false },
-      { value: 'foo@gmail.com', negated: false },
+    const parsed = parseAdvancedSearchQuery(input)
+
+    expect(getNumberOfKeywords(parsed)).toEqual(4)
+    expect(parsed.getKeyword('from')).toEqual([
+      { value: 'hi@mericsson.com', isNegated: false },
+      { value: 'foo@gmail.com', isNegated: false },
     ])
-    expect(conditionMap.date).toEqual([
+    expect(parsed.getKeyword('date')).toEqual([
       {
         value: '1/10/2013-15/04/2014',
-        negated: false,
+        isNegated: false,
       },
     ])
   })
 
-  test('negated getText()', () => {
-    const str = 'hello -big -fat is:condition world'
-    const parsed = AdvancedSearchQuery.parse(str)
-    expect(parsed.getTextSegments()).toEqual([
+  test('isNegated getText()', () => {
+    const input = 'hello -big -fat is:condition world'
+    const parsed = parseAdvancedSearchQuery(input)
+
+    expect(parsed.getTexts()).toEqual([
       {
-        text: 'hello',
-        negated: false,
+        value: 'hello',
+        isNegated: false,
       },
-      { text: 'big', negated: true },
-      { text: 'fat', negated: true },
-      { text: 'world', negated: false },
+      { value: 'big', isNegated: true },
+      { value: 'fat', isNegated: true },
+      { value: 'world', isNegated: false },
     ])
-    expect(getNumKeywords(parsed)).toEqual(1)
+    expect(getNumberOfKeywords(parsed)).toEqual(1)
   })
 
   test('complex use case', () => {
-    const str =
+    const input =
       'op1:value op1:value2 op2:"multi, \'word\', value" sometext -op3:value more text'
-    const parsed = AdvancedSearchQuery.parse(str)
-    const conditionMap = getConditionMap(parsed)
-    const conditionArray = parsed.getConditionArray()
-    expect(parsed.getTextSegments()).toEqual([
-      { text: 'sometext', negated: false },
-      { text: 'more', negated: false },
-      { text: 'text', negated: false },
+    const parsed = parseAdvancedSearchQuery(input)
+
+    expect(parsed.getTexts()).toEqual([
+      { value: 'sometext', isNegated: false },
+      { value: 'more', isNegated: false },
+      { value: 'text', isNegated: false },
     ])
-    expect(getNumKeywords(parsed)).toEqual(3)
-    expect(conditionMap.op1).toEqual([
+    expect(getNumberOfKeywords(parsed)).toEqual(3)
+    expect(parsed.getKeyword('op1')).toEqual([
       {
         value: 'value',
-        negated: false,
+        isNegated: false,
       },
       {
         value: 'value2',
-        negated: false,
+        isNegated: false,
       },
     ])
-    expect(conditionMap.op2).toEqual([
+    expect(parsed.getKeyword('op2')).toEqual([
       {
         value: "multi, 'word', value",
-        negated: false,
+        isNegated: false,
       },
     ])
-    expect(conditionMap.op3).toEqual([
+    expect(parsed.getKeyword('op3')).toEqual([
       {
         value: 'value',
-        negated: true,
+        isNegated: true,
       },
     ])
-    expect(conditionArray.length).toEqual(4)
-    expect(conditionArray).toEqual([
-      { keyword: 'op1', value: 'value', negated: false },
-      { keyword: 'op1', value: 'value2', negated: false },
-      { keyword: 'op2', value: "multi, 'word', value", negated: false },
-      { keyword: 'op3', value: 'value', negated: true },
-    ])
+    expect(parsed.getKeywords()).toEqual({
+      op1: [
+        { value: 'value', isNegated: false },
+        { value: 'value2', isNegated: false },
+      ],
+      op2: [{ value: "multi, 'word', value", isNegated: false }],
+      op3: [{ value: 'value', isNegated: true }],
+    })
     expect(parsed.toString()).toEqual(
       'op1:value,value2 op2:"multi, \'word\', value" -op3:value sometext more text'
     )
-    parsed.removeKeyword('op1', false)
+    parsed.removeKeyword('op1')
     expect(parsed.toString()).toEqual(
       'op2:"multi, \'word\', value" -op3:value sometext more text'
     )
@@ -189,116 +172,116 @@ describe('searchString', () => {
     expect(parsed.toString()).toEqual(
       'op2:"multi, \'word\', value" -op3:value sometext more text'
     )
-    parsed.removeKeyword('op3', false)
+    parsed.removeKeyword('op3', undefined, false)
     expect(parsed.toString()).toEqual(
       'op2:"multi, \'word\', value" -op3:value sometext more text'
     )
-    parsed.removeKeyword('op3', true)
+    parsed.removeKeyword('op3', 'value')
     expect(parsed.toString()).toEqual(
       'op2:"multi, \'word\', value" sometext more text'
     )
   })
 
   test('several quoted strings', () => {
-    const str = '"string one" "string two"'
-    const parsed = AdvancedSearchQuery.parse(str)
-    expect(parsed.getTextSegments()).toEqual([
+    const input = '"string one" "string two"'
+    const parsed = parseAdvancedSearchQuery(input)
+
+    expect(parsed.getTexts()).toEqual([
       {
-        text: 'string one',
-        negated: false,
+        value: 'string one',
+        isNegated: false,
       },
-      { text: 'string two', negated: false },
+      { value: 'string two', isNegated: false },
     ])
-    expect(getNumKeywords(parsed)).toEqual(0)
+    expect(getNumberOfKeywords(parsed)).toEqual(0)
   })
 
   test('dash in text', () => {
-    const str = 'my-string op1:val'
-    const parsed = AdvancedSearchQuery.parse(str)
-    const conditionMap = getConditionMap(parsed)
-    expect(parsed.getTextSegments()[0]).toEqual({
-      text: 'my-string',
-      negated: false,
+    const input = 'my-string op1:val'
+    const parsed = parseAdvancedSearchQuery(input)
+
+    expect(parsed.getTexts()[0]).toEqual({
+      value: 'my-string',
+      isNegated: false,
     })
-    expect(conditionMap.op1).toEqual([
+    expect(parsed.getKeyword('op1')).toEqual([
       {
         value: 'val',
-        negated: false,
+        isNegated: false,
       },
     ])
   })
 
   test('quoted semicolon string', () => {
-    const str = 'op1:value "semi:string"'
-    const parsed = AdvancedSearchQuery.parse(str)
-    expect(parsed.getTextSegments()).toEqual([
-      { text: 'semi:string', negated: false },
+    const input = 'op1:value "semi:string"'
+    const parsed = parseAdvancedSearchQuery(input)
+
+    expect(parsed.getTexts()).toEqual([
+      { value: 'semi:string', isNegated: false },
     ])
-    expect(getNumKeywords(parsed)).toEqual(1)
-    expect(getConditionMap(parsed).op1).toEqual([
+    expect(getNumberOfKeywords(parsed)).toEqual(1)
+    expect(parsed.getKeyword('op1')).toEqual([
       {
         value: 'value',
-        negated: false,
+        isNegated: false,
       },
     ])
   })
 
   test('comma in condition value', () => {
-    const str =
+    const input =
       'from:hello@mixmax.com template:"recruiting: reject email, inexperience"'
-    const parsed = AdvancedSearchQuery.parse(str)
-    expect(parsed.getTextSegments()).toEqual([])
-    expect(getNumKeywords(parsed)).toEqual(2)
-    expect(getConditionMap(parsed).template).toEqual([
+    const parsed = parseAdvancedSearchQuery(input)
+
+    expect(parsed.getTexts()).toEqual([])
+    expect(getNumberOfKeywords(parsed)).toEqual(2)
+    expect(parsed.getKeyword('template')).toEqual([
       {
         value: 'recruiting: reject email, inexperience',
-        negated: false,
+        isNegated: false,
       },
     ])
   })
 
   test('intentional quote in text', () => {
-    const str = "foo'bar from:aes"
-    const parsed = AdvancedSearchQuery.parse(str)
-    expect(parsed.getTextSegments()).toEqual([
-      { text: "foo'bar", negated: false },
-    ])
-    expect(getNumKeywords(parsed)).toEqual(1)
-    expect(getConditionMap(parsed).from).toEqual([
+    const input = "foo'bar from:aes"
+    const parsed = parseAdvancedSearchQuery(input)
+
+    expect(parsed.getTexts()).toEqual([{ value: "foo'bar", isNegated: false }])
+    expect(getNumberOfKeywords(parsed)).toEqual(1)
+    expect(parsed.getKeyword('from')).toEqual([
       {
         value: 'aes',
-        negated: false,
+        isNegated: false,
       },
     ])
   })
 
   test('intentional quote in operand', () => {
-    const str = "foobar from:ae's"
-    const parsed = AdvancedSearchQuery.parse(str)
-    expect(parsed.getTextSegments()).toEqual([
-      { text: 'foobar', negated: false },
-    ])
-    expect(getNumKeywords(parsed)).toEqual(1)
-    expect(getConditionMap(parsed).from).toEqual([
+    const input = "foobar from:ae's"
+    const parsed = parseAdvancedSearchQuery(input)
+
+    expect(parsed.getTexts()).toEqual([{ value: 'foobar', isNegated: false }])
+    expect(getNumberOfKeywords(parsed)).toEqual(1)
+    expect(parsed.getKeyword('from')).toEqual([
       {
         value: "ae's",
-        negated: false,
+        isNegated: false,
       },
     ])
     expect(parsed.toString()).toEqual("from:ae's foobar")
   })
 
   test('quote in condition value', () => {
-    const str = 'foobar template:" hello \'there\': other"'
-    const parsed = AdvancedSearchQuery.parse(str)
-    expect(parsed.getTextSegments()).toEqual([
-      { text: 'foobar', negated: false },
-    ])
-    expect(getNumKeywords(parsed)).toEqual(1)
-    expect(getConditionMap(parsed).template).toEqual([
+    const input = 'foobar template:" hello \'there\': other"'
+    const parsed = parseAdvancedSearchQuery(input)
+
+    expect(parsed.getTexts()).toEqual([{ value: 'foobar', isNegated: false }])
+    expect(getNumberOfKeywords(parsed)).toEqual(1)
+    expect(parsed.getKeyword('template')).toEqual([
       {
         value: " hello 'there': other",
-        negated: false,
+        isNegated: false,
       },
     ])
     expect(parsed.toString()).toEqual(
@@ -307,16 +290,14 @@ describe('searchString', () => {
   })
 
   test('double quote in double quote condition value', () => {
-    const str = 'foobar template:" hello \\"there\\": other"'
-    const parsed = AdvancedSearchQuery.parse(str)
-    expect(parsed.getTextSegments()).toEqual([
-      { text: 'foobar', negated: false },
-    ])
-    expect(getNumKeywords(parsed)).toEqual(1)
-    expect(getConditionMap(parsed).template).toEqual([
+    const input = 'foobar template:" hello \\"there\\": other"'
+    const parsed = parseAdvancedSearchQuery(input)
+    expect(parsed.getTexts()).toEqual([{ value: 'foobar', isNegated: false }])
+    expect(getNumberOfKeywords(parsed)).toEqual(1)
+    expect(parsed.getKeyword('template')).toEqual([
       {
         value: ' hello "there": other',
-        negated: false,
+        isNegated: false,
       },
     ])
     expect(parsed.toString()).toEqual(
@@ -325,19 +306,25 @@ describe('searchString', () => {
   })
 
   test('two negative conditions concat toString', () => {
-    const str = '-to:foo@foo.com,foo2@foo.com text'
-    const parsed = AdvancedSearchQuery.parse(str)
-    expect(parsed.getParsedQuery().exclude.to).toEqual([
+    const input = '-to:foo@foo.com,foo2@foo.com text -notext'
+    const parsed = parseAdvancedSearchQuery(input)
+
+    expect(parsed.toObject().keywords.to.exclude).toEqual([
       'foo@foo.com',
       'foo2@foo.com',
     ])
-    expect(parsed.toString()).toEqual('-to:foo@foo.com,foo2@foo.com text')
+    expect(parsed.toObject().text.include).toEqual(['text'])
+    expect(parsed.toObject().text.exclude).toEqual(['notext'])
+    expect(parsed.toString()).toEqual(
+      '-to:foo@foo.com,foo2@foo.com text -notext'
+    )
   })
 
   test('two negative conditions separate toString', () => {
-    const str = '-to:foo@foo.com -to:foo2@foo.com text'
-    const parsed = AdvancedSearchQuery.parse(str)
-    expect(parsed.getParsedQuery().exclude.to).toEqual([
+    const input = '-to:foo@foo.com -to:foo2@foo.com text'
+    const parsed = parseAdvancedSearchQuery(input)
+
+    expect(parsed.toObject().keywords.to.exclude).toEqual([
       'foo@foo.com',
       'foo2@foo.com',
     ])
@@ -345,29 +332,37 @@ describe('searchString', () => {
   })
 
   test('transformTextToCondition', () => {
-    const str = '<a@b.com> to:c@d.com'
-    const transform = (text: string) =>
-      text === '<a@b.com>' ? { key: 'to', value: 'a@b.com' } : null
-    const parsed = AdvancedSearchQuery.parse(str, [transform])
-    expect(parsed.getTextSegments()).toEqual([])
-    expect(getNumKeywords(parsed)).toEqual(1)
-    expect(parsed.getParsedQuery().to).toEqual(['a@b.com', 'c@d.com'])
+    const input = '<a@b.com> to:c@d.com'
+    const parsed = parseAdvancedSearchQuery(input, [
+      (text) => {
+        return text === '<a@b.com>'
+          ? { name: 'to', value: 'a@b.com', isNegated: true }
+          : null
+      },
+    ])
+
+    expect(parsed.getTexts()).toEqual([])
+    expect(getNumberOfKeywords(parsed)).toEqual(1)
+    expect(parsed.toObject().keywords.to.include).toEqual([
+      'a@b.com',
+      'c@d.com',
+    ])
   })
 
-  test('removeEntry simple case', () => {
-    const str = 'foo:bar,baz'
-    const parsed = AdvancedSearchQuery.parse(str)
-    expect(parsed.getParsedQuery().foo).toEqual(['bar', 'baz'])
+  test('removeKeyword simple case', () => {
+    const input = 'foo:bar,baz'
+    const parsed = parseAdvancedSearchQuery(input)
 
-    parsed.removeEntry('foo', 'baz', false)
-
-    expect(parsed.getParsedQuery().foo).toEqual(['bar'])
+    expect(parsed.toObject().keywords.foo.include).toEqual(['bar', 'baz'])
+    parsed.removeKeyword('foo', 'baz', false)
+    expect(parsed.toObject().keywords.foo.include).toEqual(['bar'])
   })
 
-  test('removeEntry should remove only one case', () => {
-    const str = '-foo:bar,baz,bar,bar,bar'
-    const parsed = AdvancedSearchQuery.parse(str)
-    expect(parsed.getParsedQuery().exclude.foo).toEqual([
+  test('removeKeyword should remove only one case', () => {
+    const input = '-foo:bar,baz,bar,bar,bar'
+    const parsed = parseAdvancedSearchQuery(input)
+
+    expect(parsed.toObject().keywords.foo.exclude).toEqual([
       'bar',
       'baz',
       'bar',
@@ -375,26 +370,22 @@ describe('searchString', () => {
       'bar',
     ])
 
-    parsed.removeEntry('foo', 'bar', true)
+    parsed.removeKeyword('foo', 'bar', true)
 
-    expect(parsed.getParsedQuery().exclude.foo).toEqual([
-      'baz',
-      'bar',
-      'bar',
-      'bar',
-    ])
+    expect(parsed.toObject().keywords.foo.exclude).toEqual(['baz'])
   })
 
-  test('removeEntry should be noop if entry is not found', () => {
-    const str = 'foo:bar'
-    const parsed = AdvancedSearchQuery.parse(str)
-    expect(parsed.getParsedQuery().foo).toEqual(['bar'])
+  test('removeKeyword should be noop if entry is not found', () => {
+    const input = 'foo:bar'
+    const parsed = parseAdvancedSearchQuery(input)
+
+    expect(parsed.toObject().keywords.foo.include).toEqual(['bar'])
     expect(parsed.toString()).toEqual('foo:bar')
-    expect(parsed.isStringDirty).toEqual(false)
+    expect(parsed.isDirty).toEqual(false)
 
-    parsed.removeEntry('foo', 'qux', false)
+    parsed.removeKeyword('foo', 'qux', false)
 
-    expect(parsed.getParsedQuery().foo).toEqual(['bar'])
-    expect(parsed.isStringDirty).toEqual(false)
+    expect(parsed.toObject().keywords.foo.include).toEqual(['bar'])
+    expect(parsed.isDirty).toEqual(false)
   })
 })
