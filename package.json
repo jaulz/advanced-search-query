@@ -61,5 +61,8 @@
   "dependencies": {
     "@types/lodash.groupby": "^4.6.6",
     "lodash.groupby": "^4.6.0"
+  },
+  "resolutions": {
+    "fs-extra": "^7.0.0"
   }
 }
