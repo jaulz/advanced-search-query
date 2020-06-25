@@ -21,36 +21,26 @@ $ yarn add advanced-search-query
 ## Usage
 
 ```javascript
-import AdvancedSearchQuery from 'advanced-search-query'
+import parseAdvancedSearchQuery from 'advanced-search-query'
 
 // Perform parsing
 const str = 'to:me -from:joe@mixmax.com foobar1 -foobar2'
-const parsedSearchQuery = AdvancedSearchQuery.parse(str)
+const parsedSearchQuery = parseAdvancedSearchQuery(str)
 
-/* Get text in different formats. */
-
-// [ { text: 'foorbar1', negated: false }, { text: 'foobar2', negated: true } ]
-parsedSearchQuery.getTextSegments()
+// [ { text: 'foorbar1', isNegated: false }, { text: 'foobar2', isNegated: true } ]
+parsedSearchQuery.getTexts()
 
 // `foobar1 -foobar2`
-parsedSearchQuery.getAllText()
+parsedSearchQuery.getText()
 
-/* Get conditions in different formats. */
+// [ { keyword: 'to', value: 'me', isNegated: false }, { keyword: 'from', value: 'joe@mixmax.com', isNegated: true } ]
+parsedSearchQuery.getKeywords()
 
-// Standard format: Condition Array
-// [ { keyword: 'to', value: 'me', negated: false }, { keyword: 'from', value: 'joe@mixmax.com', negated: true } ]
-parsedSearchQuery.getConditionArray()
-
-// Alternate format: Parsed Query
-// { to: ['me'], excludes: { from: ['joe@mixmax.com'] }}
-parsedSearchQuery.getParsedQuery()
-
-/* Or get text and conditions back in string format. */
+// { to: { include: ['me'] }, from: { exclude: ['joe@mixmax.com'] }}
+parsedSearchQuery.toObject()
 
 // `to:me -from:joe@mixmax.com foobar1 -foobar2`
 parsedSearchQuery.toString()
-
-/* Mutations exist as well for modifying an existing AdvancedSearchQuery structure. */
 
 // `to:me foobar -foobar2`
 parsedSearchQuery.removeKeyword('from', true).toString()
