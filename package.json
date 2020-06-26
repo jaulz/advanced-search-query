@@ -63,6 +63,6 @@
     "lodash.groupby": "^4.6.0"
   },
   "resolutions": {
-    "fs-extra": "^9.0.0"
+    "readable-stream": "^3.4.0"
   }
 }
