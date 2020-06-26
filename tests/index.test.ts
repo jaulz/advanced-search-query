@@ -55,7 +55,7 @@ describe('searchString', () => {
     ])
   })
 
-  test('multiple getText() segments', () => {
+  test('multiple texts', () => {
     const input = 'to:me foobar zoobar'
     const parsed = parseAdvancedSearchQuery(input)
 
@@ -104,7 +104,7 @@ describe('searchString', () => {
     ])
   })
 
-  test('isNegated getText()', () => {
+  test('negated texts', () => {
     const input = 'hello -big -fat is:condition world'
     const parsed = parseAdvancedSearchQuery(input)
 
@@ -122,13 +122,13 @@ describe('searchString', () => {
 
   test('complex use case', () => {
     const input =
-      'op1:value op1:value2 op2:"multi, \'word\', value" sometext -op3:value more text'
+      'op1:value op1:value2 op2:"multi, \'word\', value" sometext -op3:value more -text'
     const parsed = parseAdvancedSearchQuery(input)
 
     expect(parsed.getTexts()).toEqual([
       { value: 'sometext', isNegated: false },
       { value: 'more', isNegated: false },
-      { value: 'text', isNegated: false },
+      { value: 'text', isNegated: true },
     ])
     expect(getNumberOfKeywords(parsed)).toEqual(3)
     expect(parsed.getKeyword('op1')).toEqual([
@@ -162,24 +162,34 @@ describe('searchString', () => {
       op3: [{ value: 'value', isNegated: true }],
     })
     expect(parsed.toString()).toEqual(
-      'op1:value,value2 op2:"multi, \'word\', value" -op3:value sometext more text'
+      'op1:value,value2 op2:"multi, \'word\', value" -op3:value sometext more -text'
     )
     parsed.removeKeyword('op1')
     expect(parsed.toString()).toEqual(
-      'op2:"multi, \'word\', value" -op3:value sometext more text'
+      'op2:"multi, \'word\', value" -op3:value sometext more -text'
     )
     // Check once more to see if cached copy returns correctly.
     expect(parsed.toString()).toEqual(
-      'op2:"multi, \'word\', value" -op3:value sometext more text'
+      'op2:"multi, \'word\', value" -op3:value sometext more -text'
     )
     parsed.removeKeyword('op3', undefined, false)
     expect(parsed.toString()).toEqual(
-      'op2:"multi, \'word\', value" -op3:value sometext more text'
+      'op2:"multi, \'word\', value" -op3:value sometext more -text'
     )
     parsed.removeKeyword('op3', 'value')
     expect(parsed.toString()).toEqual(
-      'op2:"multi, \'word\', value" sometext more text'
+      'op2:"multi, \'word\', value" sometext more -text'
     )
+    parsed.removeText('sometext')
+    expect(parsed.toString()).toEqual('op2:"multi, \'word\', value" more -text')
+    parsed.removeText('text', false)
+    expect(parsed.toString()).toEqual('op2:"multi, \'word\', value" more -text')
+    parsed.removeText('text', true)
+    expect(parsed.toString()).toEqual('op2:"multi, \'word\', value" more')
+    parsed.removeTexts()
+    expect(parsed.toString()).toEqual('op2:"multi, \'word\', value"')
+    parsed.removeKeywords()
+    expect(parsed.toString()).toEqual('')
   })
 
   test('several quoted strings', () => {
@@ -358,7 +368,7 @@ describe('searchString', () => {
     expect(parsed.toObject().keywords.foo.include).toEqual(['bar'])
   })
 
-  test('removeKeyword should remove only one case', () => {
+  test('removeKeyword should remove all occurences', () => {
     const input = '-foo:bar,baz,bar,bar,bar'
     const parsed = parseAdvancedSearchQuery(input)
 
@@ -386,6 +396,47 @@ describe('searchString', () => {
     parsed.removeKeyword('foo', 'qux', false)
 
     expect(parsed.toObject().keywords.foo.include).toEqual(['bar'])
+    expect(parsed.isDirty).toEqual(false)
+  })
+
+  test('removeText simple case', () => {
+    const input = 'bar baz'
+    const parsed = parseAdvancedSearchQuery(input)
+
+    expect(parsed.toObject().text.include).toEqual(['bar', 'baz'])
+    parsed.removeText('baz')
+    expect(parsed.toObject().text.include).toEqual(['bar'])
+  })
+
+  test('removeText should remove all occurences', () => {
+    const input = 'bar baz bar bar bar'
+    const parsed = parseAdvancedSearchQuery(input)
+
+    expect(parsed.toObject().text.include).toEqual([
+      'bar',
+      'baz',
+      'bar',
+      'bar',
+      'bar',
+    ])
+
+    parsed.removeText('bar')
+
+    expect(parsed.toObject().text.include).toEqual(['baz'])
+  })
+
+  test('removeText should be noop if entry is not found', () => {
+    const input = 'test -notest'
+    const parsed = parseAdvancedSearchQuery(input)
+
+    expect(parsed.toObject().text.include).toEqual(['test'])
+    expect(parsed.toObject().text.exclude).toEqual(['notest'])
+    expect(parsed.toString()).toEqual('test -notest')
+    expect(parsed.isDirty).toEqual(false)
+
+    parsed.removeText('test', true)
+
+    expect(parsed.toObject().text.include).toEqual(['test'])
     expect(parsed.isDirty).toEqual(false)
   })
 })

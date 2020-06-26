@@ -46,12 +46,16 @@ parsedSearchQuery.toString()
 parsedSearchQuery.removeKeyword('from', true).toString()
 
 // `to:me from:jane@mixmax.com foobar1 -foobar2`
-parsedSearchQuery.addEntry('from', 'jane@mixmax.com', false).toString()
+parsedSearchQuery.addKeyword('from', 'jane@mixmax.com', false).toString()
 
 // `from:jane@mixmax.com foobar1 -foobar2`
-parsedSearchQuery.removeEntry('to', 'me', false).toString()
+parsedSearchQuery.removeKeyword('to', 'me', false).toString()
 
-/* clone operation instantiates a new version by copying over data. */
+// `from:jane@mixmax.com -foobar2`
+parsedSearchQuery.removeText('foobar1').toString()
+
+// `from:jane@mixmax.com foobar1 -foobar2`
+parsedSearchQuery.addText('foobar1', false).toString()
 
 // `from:jane@mixmax.com foobar1 -foobar2`
 parsedSearchQuery.clone().toString()

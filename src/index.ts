@@ -57,7 +57,7 @@ export class AdvancedSearchQuery {
   }
 
   getKeywords(): Record<string, Omit<Keyword, 'name'>[]> {
-    const keywords = groupBy(this.keywords, 'name')
+    const keywords: Record<string, Keyword[]> = groupBy(this.keywords, 'name')
 
     return Object.entries(keywords)
       .map(([name, keywords]): [string, Omit<Keyword, 'name'>[]] => {
@@ -122,13 +122,22 @@ export class AdvancedSearchQuery {
     return parsedQuery
   }
 
-  addKeyword(name: string, value: Value, isNegated: boolean) {
+  addKeyword(name: string, value: Value, isNegated: boolean = false) {
     this.keywords.push({
       name,
       value,
       isNegated,
     })
     this.isDirty = true
+
+    return this
+  }
+
+  removeKeywords() {
+    this.keywords = []
+    this.isDirty = true
+
+    return this
   }
 
   removeKeyword(name: string, value?: Value, isNegated?: boolean) {
@@ -149,6 +158,41 @@ export class AdvancedSearchQuery {
     })
     this.isDirty = keywords.length !== this.keywords.length
     this.keywords = keywords
+
+    return this
+  }
+
+  addText(value: Value, isNegated: boolean = false) {
+    this.texts.push({
+      value,
+      isNegated,
+    })
+    this.isDirty = true
+
+    return this
+  }
+
+  removeText(value: Value, isNegated?: boolean) {
+    const texts = this.texts.filter((text) => {
+      if (value !== text.value) {
+        return true
+      }
+
+      if (typeof isNegated !== 'undefined' && isNegated !== text.isNegated) {
+        return true
+      }
+
+      return false
+    })
+    this.isDirty = texts.length !== this.texts.length
+    this.texts = texts
+
+    return this
+  }
+
+  removeTexts() {
+    this.texts = []
+    this.isDirty = true
 
     return this
   }
