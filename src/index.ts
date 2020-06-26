@@ -79,7 +79,7 @@ export class AdvancedSearchQuery {
       }, {})
   }
 
-  getKeyword(name: string): Omit<Keyword, 'name'>[] {
+  getKeyword(name: string) {
     return this.getKeywords()[name]
   }
 
