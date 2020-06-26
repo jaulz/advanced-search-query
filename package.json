@@ -1,68 +1,64 @@
 {
-  "name": "advanced-search-query",
-  "version": "0.0.0-development",
-  "description": "Another parser for advanced search query syntax.",
-  "main": "build/cjs/src/index.js",
-  "module": "build/esm/src/index.js",
-  "types": "build/cjs/src/index.d.ts",
-  "files": [
-    "src",
-    "build"
-  ],
-  "scripts": {
-    "build": "ts-build . --cjs --esm --out-dir build",
-    "ci": "yarn test && yarn build",
-    "prepare": "yarn build",
-    "prepublishOnly": "yarn ci",
-    "test": "jest",
-    "testWatch": "jest --watch",
-    "semantic-release": "semantic-release"
-  },
-  "author": "Julian Hundeloh <julian@approvals.cloud> (https://approvals.cloud)",
-  "license": "MIT",
-  "keywords": [
-    "query parser",
-    "querystrings",
-    "search",
-    "search syntax parser",
-    "search query"
-  ],
-  "repository": "git@github.com:jaulz/advanced-search-query.git",
-  "devDependencies": {
-    "@ts-tools/build": "^1.2.6",
-    "@types/jest": "^26.0.3",
-    "cz-conventional-changelog": "^3.2.0",
-    "husky": "^4.2.5",
-    "jest": "^26.1.0",
-    "jest-cli": "^26.1.0",
-    "prettier": "^2.0.5",
-    "pretty-quick": "^2.0.1",
-    "semantic-release": "^17.1.1",
-    "ts-jest": "^26.1.1",
-    "typescript": "^3.9.5"
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
+    "name": "advanced-search-query",
+    "version": "0.0.0-development",
+    "description": "Another parser for advanced search query syntax.",
+    "main": "build/cjs/src/index.js",
+    "module": "build/esm/src/index.js",
+    "types": "build/cjs/src/index.d.ts",
+    "files": [
+        "src",
+        "build"
+    ],
+    "scripts": {
+        "build": "ts-build . --cjs --esm --out-dir build",
+        "ci": "yarn test && yarn build",
+        "prepare": "yarn build",
+        "prepublishOnly": "yarn ci",
+        "test": "jest",
+        "testWatch": "jest --watch"
+    },
+    "author": "Julian Hundeloh <julian@approvals.cloud> (https://approvals.cloud)",
+    "license": "MIT",
+    "keywords": [
+        "query parser",
+        "querystrings",
+        "search",
+        "search syntax parser",
+        "search query"
+    ],
+    "repository": "git@github.com:jaulz/advanced-search-query.git",
+    "devDependencies": {
+        "@ts-tools/build": "^1.2.6",
+        "@types/jest": "^26.0.3",
+        "cz-conventional-changelog": "^3.2.0",
+        "husky": "^4.2.5",
+        "jest": "^26.1.0",
+        "jest-cli": "^26.1.0",
+        "prettier": "^2.0.5",
+        "pretty-quick": "^2.0.1",
+        "semantic-release": "^17.1.1",
+        "ts-jest": "^26.1.1",
+        "typescript": "^3.9.5"
+    },
+    "config": {
+        "commitizen": {
+            "path": "./node_modules/cz-conventional-changelog"
+        }
+    },
+    "prettier": {
+        "singleQuote": true,
+        "trailingComma": "es5",
+        "semi": false
+    },
+    "husky": {
+        "hooks": {
+            "post-merge": "yarn install",
+            "post-rewrite": "yarn install",
+            "pre-commit": "yarn test && pretty-quick --staged --verbose"
+        }
+    },
+    "dependencies": {
+        "@types/lodash.groupby": "^4.6.6",
+        "lodash.groupby": "^4.6.0"
     }
-  },
-  "prettier": {
-    "singleQuote": true,
-    "trailingComma": "es5",
-    "semi": false
-  },
-  "husky": {
-    "hooks": {
-      "post-merge": "yarn install",
-      "post-rewrite": "yarn install",
-      "pre-commit": "yarn test && pretty-quick --staged --verbose"
-    }
-  },
-  "dependencies": {
-    "@types/lodash.groupby": "^4.6.6",
-    "lodash.groupby": "^4.6.0"
-  },
-  "resolutions": {
-    "readable-stream": "^3.4.0"
-  }
 }
