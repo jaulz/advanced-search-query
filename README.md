@@ -24,8 +24,8 @@ $ yarn add advanced-search-query
 import parseAdvancedSearchQuery from 'advanced-search-query'
 
 // Perform parsing
-const str = 'to:me -from:joe@mixmax.com foobar1 -foobar2'
-const parsedSearchQuery = parseAdvancedSearchQuery(str)
+const input = 'to:me -from:joe@mixmax.com foobar1 -foobar2'
+const parsedSearchQuery = parseAdvancedSearchQuery(input)
 
 // [ { text: 'foorbar1', isNegated: false }, { text: 'foobar2', isNegated: true } ]
 parsedSearchQuery.getTexts()
