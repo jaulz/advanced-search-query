@@ -80,7 +80,12 @@ export class AdvancedSearchQuery {
   }
 
   getKeyword(name: string) {
-    return this.getKeywords()[name]
+    const keyword = this.getKeywords()[name]
+    if (!keyword) {
+      return []
+    }
+
+    return keyword
   }
 
   toObject() {
